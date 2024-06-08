@@ -1,0 +1,36 @@
+pipeline {
+    agent any
+    stages{
+        stage('git cloned'){
+            steps{
+                git url:'https://github.com/Tarun257/capproject/', branch: "master"
+              
+            }
+        }
+        stage('Build docker image'){
+            steps{
+                script{
+                    sh 'docker build -t velagapuditarun3539/project-finance:v1'
+                    sh 'docker images'
+                }
+            }
+        }
+          stage('Docker login') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-pwd', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
+                    sh "echo $PASS | docker login -u $USER --password-stdin"
+                    sh 'docker push velagapuditarun3539/project-finance:v1'
+                }
+            }
+        }
+        
+     stage('Deploy') {
+            steps {
+                sh "docker run -itd --name My-first-containe2111 -p 8083:80 velagapuditarun3539/project-finance:v1"
+                       
+                    }
+                
+            
+        }
+    }
+}
